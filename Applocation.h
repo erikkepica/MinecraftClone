@@ -17,10 +17,18 @@ public:
     Camera GetCam(){return m_Cam;}
 
     void processInput();
+    void MouseCallback(double xpos, double ypos);
 
     void StopApplication() {glfwSetWindowShouldClose(m_Window, true);}
 
+    float deltaTime;
+
 private:
+    bool m_FirstMouse;
+
+    float m_LastX;
+    float m_LastY;
+
     int m_Width;
     int m_Height;
     std::string m_Name;

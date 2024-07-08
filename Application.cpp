@@ -1,16 +1,24 @@
 #include"Applocation.h"
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+void FrameBufferSizeCallbackG(GLFWwindow* window, int width, int height)
 {
     glViewport(0,0,width,height);
 }
+void MouseCallbackG(GLFWwindow *window, double xpos, double ypos)
+{
+    Application* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
+
+    app->MouseCallback(xpos, ypos);
+}
 
 Application::Application(int width, int height, std::string name)
-    :m_Cam(width, height, 45.f, 0.1f, 100.0f)
+    :m_Cam(width, height, 45.f, 0.1f, 100.0f, glm::vec3(0,1,0), 10)
 {
     m_Width = width;
     m_Height = height;
     m_Name = name;
+
+    m_FirstMouse = true;
 
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -33,28 +41,48 @@ Application::Application(int width, int height, std::string name)
 
     
     glfwMakeContextCurrent(m_Window);
-    glfwSetFramebufferSizeCallback(m_Window, framebuffer_size_callback);
+
+    glfwSetWindowUserPointer(m_Window, this);
+
+    glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+    glfwSetFramebufferSizeCallback(m_Window, FrameBufferSizeCallbackG);
+    glfwSetCursorPosCallback(m_Window, MouseCallbackG);
 }
 
 
 
 void Application::processInput()
 {
-    if(glfwGetKey(m_Window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        StopApplication();
+    if (glfwGetKey(m_Window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+    {
+        glfwSetWindowShouldClose(m_Window, true);
+    }
+    if (glfwGetKey(m_Window, GLFW_KEY_W) == GLFW_PRESS)
+        m_Cam.ProcessKeyboard(FORWARD, deltaTime);
+    if (glfwGetKey(m_Window, GLFW_KEY_S) == GLFW_PRESS)
+        m_Cam.ProcessKeyboard(BACKWARD, deltaTime);
+    if (glfwGetKey(m_Window, GLFW_KEY_A) == GLFW_PRESS)
+        m_Cam.ProcessKeyboard(LEFT, deltaTime);
+    if (glfwGetKey(m_Window, GLFW_KEY_D) == GLFW_PRESS)
+        m_Cam.ProcessKeyboard(RIGHT, deltaTime);
+    if (glfwGetKey(m_Window, GLFW_KEY_SPACE) == GLFW_PRESS)
+        m_Cam.ProcessKeyboard(UP, deltaTime);
+    if (glfwGetKey(m_Window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+        m_Cam.ProcessKeyboard(DOWN, deltaTime);
+}
 
-    if(glfwGetKey(m_Window, GLFW_KEY_V) == GLFW_PRESS)
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    if(glfwGetKey(m_Window, GLFW_KEY_B) == GLFW_PRESS)
-        glPolygonMode(GL_FRONT_AND_BACK, GL_TRIANGLES);
+void Application::MouseCallback(double xpos, double ypos)
+{
+    if (m_FirstMouse) {
+        m_LastX = xpos;
+        m_LastY = ypos;
+        m_FirstMouse = false;
+    }
 
-    int rotDirX = glfwGetKey(m_Window, GLFW_KEY_RIGHT)-glfwGetKey(m_Window, GLFW_KEY_LEFT);
-    int rotDirY = glfwGetKey(m_Window, GLFW_KEY_UP)-glfwGetKey(m_Window, GLFW_KEY_DOWN);
-
-    int movDirX = (glfwGetKey(m_Window, GLFW_KEY_D)-glfwGetKey(m_Window, GLFW_KEY_A));
-    int movDirZ= (glfwGetKey(m_Window, GLFW_KEY_W)-glfwGetKey(m_Window, GLFW_KEY_S));
-    int movDirY= (glfwGetKey(m_Window, GLFW_KEY_SPACE)-glfwGetKey(m_Window, GLFW_KEY_LEFT_SHIFT));
-
-    m_Cam.rotation+=glm::vec3(-rotDirY,rotDirX,0);
-    m_Cam.position+=glm::vec3((float)-movDirX/10,(float)-movDirY/10,(float)movDirZ/10);
+    float xoffset = m_LastX-xpos;
+    float yoffset = m_LastY - ypos; // Reversed since y-coordinates range from bottom to top
+    m_LastX = xpos;
+    m_LastY = ypos;
+    m_Cam.ProcessMouseMovement(xoffset, yoffset);
 }
