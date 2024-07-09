@@ -1,19 +1,46 @@
 #include "Chunk.h"
 #include"Block.h"
 #include"Game.h"
+#include"FastNoiseLite.h"
 
 Chunk::Chunk(int sizeXZ, int sizeY, int posX, int posY, Shader* shader, Texture* texture)
     :m_SizeXZ(sizeXZ), m_SizeY(sizeY), m_RenderObject(nullptr), m_Shader(shader), m_Texture(texture)
 {
     m_Pos = glm::vec2(posX, posY);
     m_Blocks = new uint8_t[m_SizeXZ*m_SizeXZ*m_SizeY];
+
+    FastNoiseLite noise;
+    noise.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
+
+    noise.SetSeed(0);
+
+    noise.SetFrequency(0.02f);
+
+    noise.SetFractalType(FastNoiseLite::FractalType_FBm);
+
+    noise.SetFractalOctaves(2);
+    noise.SetFractalLacunarity(2.0f);
+    noise.SetFractalGain(0.1f);
+    noise.SetFractalWeightedStrength(7.0f);
+
+    noise.SetCellularDistanceFunction(FastNoiseLite::CellularDistanceFunction_EuclideanSq);
+
     for(int x = 0; x < m_SizeXZ; x++)
     {
         for(int z = 0; z < m_SizeXZ; z++)
         {
+            noise.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
+            noise.SetFrequency(0.05f);
+            int height1 = noise.GetNoise((float)x+m_Pos.y, (float)z+m_Pos.x)*10.0f+16.0f;
+            noise.SetNoiseType(FastNoiseLite::NoiseType_Cellular);
+            noise.SetFrequency(0.02f);
+            int height2 = noise.GetNoise((float)x+m_Pos.y, (float)z+m_Pos.x)*10.0f+16.0f;
+            /*noise.SetFrequency(0.01f);
+            noise.SetFractalType(FastNoiseLite::FractalType_None);
+            int height2 = noise.GetNoise((float)x+m_Pos.x, (float)z+m_Pos.y)*5.0f+70.0f;*/
+            int height = height1+height2;
             for(int y = 0; y < m_SizeY; y++)
             {
-                int height = 64+(int)(1.5*abs(sin(x)-cos(z)));
                 uint8_t ID = Game::GetGame()->GetBlocks()->GetID("STONE");
                 if(y>height-5) ID = Game::GetGame()->GetBlocks()->GetID("DIRT");
                 if(y==height) ID = Game::GetGame()->GetBlocks()->GetID("GRASS");

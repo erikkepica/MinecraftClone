@@ -22,7 +22,7 @@ Game::Game(int width, int height, const char *name, std::string blockResPath)
 
     defultShader = Shader("shaders/vert.glsl", "shaders/frag.glsl");
     
-    m_World = std::make_unique<World>(m_App.get(), &defultShader, &atlasTex, 5);
+    m_World = std::make_unique<World>(m_App.get(), &defultShader, &atlasTex, 1);
 
 
     glEnable(GL_DEPTH_TEST);
