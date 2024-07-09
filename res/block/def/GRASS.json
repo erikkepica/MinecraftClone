@@ -1,3 +1,4 @@
 {
-    "type":"CUBE_GRASS_LIKE"
+    "type":"CUBE_GRASS_LIKE",
+    "transparent":false
 }

@@ -29,6 +29,8 @@ public:
     void ProcessMouseMovement(float xoffset, float yoffset, bool constrainPitch = true);
     void ProcessKeyboard(Camera_Movement direction, float deltaTime);
 
+    glm::vec3 RayCast(int distance);
+
     glm::mat4 GetViewMat();
     glm::mat4 GetProjectionMat(){return projection;}
 

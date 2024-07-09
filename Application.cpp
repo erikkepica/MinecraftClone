@@ -54,6 +54,10 @@ Application::Application(int width, int height, std::string name)
 
 void Application::processInput()
 {
+    if (glfwGetMouseButton(m_Window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+    {
+        m_Cam.RayCast(10);
+    }
     if (glfwGetKey(m_Window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
     {
         glfwSetWindowShouldClose(m_Window, true);

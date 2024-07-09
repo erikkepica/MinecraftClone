@@ -1,3 +1,4 @@
 {
-    "type":"CUBE_ALL"
+    "type":"CUBE_ALL",
+    "transparent":true
 }
